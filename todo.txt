@@ -1,2 +1,34 @@
-1. User can see TopDown map tiles
-2. User can see Isometric tiles
+1.User can see isometric world (done)
+2.User can see player character female (done)
+3.User can see 8 direction (on progress)
+4.User can move 8 direction with Arrow key & Steam deck pad
+4.5 Tiles have collision
+4.6 User can have collisions to tiles with AABB 
+5.User can select 2 blocks away of horizontal & vertical from the player
+6.User can break tiles within player reach
+7.User can put tiles withub player reach
+8.User have gravity
+9 User can jump 2 blocks away
+10. User have health
+11. User lose some health if go down 3 blocks away
+12. If player behind tiles or objects it goes transparent
+13. Player can see Tree
+14. Player can destroy tree 
+15. Player can destroy tiles & objects by holding it for 2 sec
+16. If tree destroyed player can see dropped item of wooden log 
+17. If tiles destroyed player can see dropped item by it tiles (soon there's seed)
+18. User can open menu inventory by pressing I
+19. User can see menu inventory UI with its items collected
+20. User can select & use item or drop
+21. User can see chicken
+22. User can pickup chicken
+23. User can throw chicken with gravity
+24. Chicken can produce / drop egg every 5 minutes
+25. Chicken have health
+26. Chicken can lose health by gravity
+27. User can throw chicken to kill it and got Chicken Meat
+28. Player can eat chicken meat raw but got food illness losing health every 5 sec
+29. User can die from health getting 0 and start from nothing with different random terrain seed
+30. User can see exit menu, back to title & setting from Escape button in game
+31. User can see start menu with button of Start, Settings, & Exit
+32. User can press settings and got into setting menu for sound sfx & music arrangement

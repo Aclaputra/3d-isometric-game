@@ -1,9 +1,13 @@
 package main
 
 import (
+	"bytes"
 	_ "embed"
+	"image"
 	"image/color"
 	"log"
+
+	"habitate/assets/images/isometric/forest/tiles"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -22,13 +26,16 @@ type Game struct {
 	characterDesc *CharacterJSON
 	tiles         map[string]*Tile
 	mapData       [MapLevels][MapHeight][MapWidth]int // binary map
+	player        Character
 }
 
 func NewGame() *Game {
-	tilesetImg, _, err := ebitenutil.NewImageFromFile("assets/images/isometric/forest/tiles/main.png")
+	decodeTilesetImg, _, err := image.Decode(bytes.NewReader(tiles.Main_tiles))
 	if err != nil {
 		log.Fatal(err)
 	}
+	tilesetImg := ebiten.NewImageFromImage(decodeTilesetImg)
+
 	characterImg, _, err := ebitenutil.NewImageFromFile("assets/images/isometric/character/female.png")
 	if err != nil {
 		log.Fatal(err)
@@ -45,6 +52,10 @@ func NewGame() *Game {
 	if err != nil {
 		log.Fatal(err)
 	}
+	character, err := characterDesc.GenerateCharacter(characterImg)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	noise := NewNoise()
 	tilemap := NewTileMap(noise)
@@ -56,6 +67,7 @@ func NewGame() *Game {
 		characterDesc: characterDesc,
 		tiles:         tiles,
 		mapData:       tilemap.mapData,
+		player:        character,
 	}
 }
 
@@ -91,34 +103,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 	}
 
-	// // TODO: create a base map into a binary
-	// for y := 0; y < 50; y++ {
-	// 	for x := 0; x < 50; x++ {
-	// 		// Get noise value
-	// 		nv := noise.Perlin.Noise2D(float64(x)/10, float64(y)/10)
-	// 		// Normalize Perlin value (-1..1 → 0..1)
-	// 		nv = (nv + 1) / 2
+	// draw player
+	playerScreenX := (float64(5-5) * tileWidth / 2)
+	playerScreenY := (float64(5+5) * tileHeight / 2)
 
-	// 		// Set level threshold
-	// 		level := 0
-	// 		if nv > 0.6 {
-	// 			level = 1 // raised tile
-	// 		}
-
-	// 		screenX := (float64(x-y) * tileWidth / 2)
-	// 		screenY := (float64(x+y) * tileHeight / 2)
-	// 		options := ebiten.DrawImageOptions{}
-	// 		options.GeoM.Translate(screenX+(1280/2), screenY)
-	// 		screen.DrawImage(dirtTile, &options)
-
-	// 		if level == 1 {
-	// 			// second level
-	// 			options2 := ebiten.DrawImageOptions{}
-	// 			options2.GeoM.Translate(screenX+(1280/2), screenY-float64(tileHeight))
-	// 			screen.DrawImage(dirtTile, &options2)
-	// 		}
-	// 	}
-	// }
+	op := &ebiten.DrawImageOptions{}
+	playerImage := g.player.ImageDirections["down"]["idle"][0]
+	op.GeoM.Translate(playerScreenX+(1280/2), playerScreenY-float64(playerImage.Bounds().Dy())+32)
+	screen.DrawImage(playerImage, op)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {

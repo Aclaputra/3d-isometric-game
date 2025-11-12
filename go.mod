@@ -1,4 +1,4 @@
-module benteng
+module habitate
 
 go 1.24.2
 
