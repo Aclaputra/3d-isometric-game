@@ -1,0 +1,2 @@
+1. User can see TopDown map tiles
+2. User can see Isometric tiles

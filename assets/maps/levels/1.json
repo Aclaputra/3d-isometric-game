@@ -1,0 +1,8 @@
+{
+    "perspective": "isometric",
+    "tile_size": 32,
+    "spawn_point": {"x": 1, "y": 1, "z": 0},
+    "field": {
+        
+    }
+}

@@ -1,0 +1,45 @@
+{
+    "description": "",
+    "size": 32,
+    "tileset_descs":[
+        {"name": "Dirt Block", "x": 0, "y": 0},
+        {"name": "Jati Wooden Block Half", "x": 1, "y": 0},
+        {"name": "Jati Wooden Floor","x": 2, "y": 0},
+        {"name": "Chopped Jati Tree", "x": 3, "y": 0},
+        {
+            "name": "Jati Wooden Wall", 
+            "perspective": [
+                {"type": "top_left", "x": 0, "y": 1},
+                {"type": "top_right", "x": 1, "y": 1},
+                {"type": "bottom_left", "x": 2, "y": 1},
+                {"type": "bottom_right", "x": 3, "y": 1},
+                {"type": "bottom", "x": 0, "y": 2},
+                {"type": "top", "x": 1, "y": 2},
+                {"type": "left", "x": 2, "y": 2},
+                {"type": "right", "x": 3, "y": 2}
+            ]
+        },
+        {
+            "name": "Stair",
+            "perspective": [
+                {"type": "bottom_left", "x":0, "y":3},
+                {"type": "bottom_right", "x":1, "y": 3}
+            ]
+        },
+        {
+            "name": "Window",
+            "perspective": [
+                {"type": "top_left", "x": 0, "y": 4},
+                {"type": "top_right", "x": 1, "y": 4},
+                {"type": "bottom_left", "x": 2, "y": 4},
+                {"type": "bottom_right", "x": 3, "y": 4}
+            ]
+        }
+    ],
+    "object_descs": [
+        {"name": "Jati Tree", "x": 4, "y": 2, "width": 128, "height": 192}  
+    ],
+    "item_descs": [
+        {"name": "Jati Wooden Log", "x": 4, "y": 0, "dropped_from": "tree"}
+    ]
+}

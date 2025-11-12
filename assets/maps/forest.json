@@ -1,0 +1,49 @@
+{
+    "dev_guide": "x = tile_size * x, y = tile_size * y",
+    "perspective": "topdown",
+    "tile_size": 16,
+    "player": {
+        "checkpoint": {
+            "level": "1"
+        }
+    },
+    "field": {
+        "posititon": [
+            {"x": 0, "Y": 0, "tile_name": "top_left"},
+            {"x": 1, "y": 0, "tile_name": "top"},
+            {"x": 2, "y": 0, "tile_name": "top"},
+            {"x": 3, "y": 0, "tile_name": "top_right"},
+
+            {"x": 0, "y": 1, "tile_name": "left_entrance"},
+            {"x": 1, "y": 1, "tile_name": "grass"},
+            {"x": 2, "y": 1, "tile_name": "grass_flip"},
+            {"x": 3, "y": 1, "tile_name": "right"},
+
+            {"x": 0, "y": 2, "tile_name": "left"},
+            {"x": 1, "y": 2, "tile_name": "grass_flower"},
+            {"x": 2, "y": 2, "tile_name": "grass_flip"},
+            {"x": 3, "y": 2, "tile_name": "right"},
+
+            {"x": 0, "y": 3, "tile_name": "bottom_left"},
+            {"x": 1, "y": 3, "tile_name": "bottom"},
+            {"x": 2, "y": 3, "tile_name": "right_entrance"},
+            {"x": 3, "y": 3, "tile_name": "bottom_right"}
+        ]
+    },
+    "level": {
+        "1": {
+            "x": 1, "y": 1,
+            "dialogue": {
+                "start": "Weclome to Benteng Game!",
+                "end": "Phew.. this level is too easy."
+            }
+        },
+        "2": {
+            "x": 2, "y": 1,
+            "dialogue": {
+                "start":  "I'm ready for next level",
+                "end": "you've finshed the demo, please support us by wishlisting on steam, join our community and follow the game devlog on twitter - Twilight Cat"
+            }
+        }
+    }
+}

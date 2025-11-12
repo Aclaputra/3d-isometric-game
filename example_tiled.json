@@ -1,0 +1,57 @@
+{
+  "height": 10,
+  "width": 10,
+  "tilewidth": 16,
+  "tileheight": 16,
+  "infinite": false,
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "tiledversion": "1.10.2",
+  "type": "map",
+  "version": "1.10",
+  "tilesets": [
+    { "firstgid": 1, "source": "terrain.tsx" },
+    { "firstgid": 50, "source": "objects.tsx" }
+  ],
+  "layers": [
+    {
+      "type": "tilelayer",
+      "name": "Ground",
+      "width": 10,
+      "height": 10,
+      "data": [
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 2, 2, 2, 2, 2, 2, 2, 2, 1,
+        1, 2, 3, 3, 3, 3, 3, 3, 2, 1,
+        1, 2, 3, 3, 3, 3, 3, 3, 2, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+      ]
+    },
+    {
+      "type": "tilelayer",
+      "name": "Blocks",
+      "width": 10,
+      "height": 10,
+      "data": [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 50, 50, 0, 0, 0, 0,
+        0, 0, 0, 0, 50, 50, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+      ]
+    },
+    {
+      "type": "tilelayer",
+      "name": "Collision",
+      "width": 10,
+      "height": 10,
+      "data": [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
+        0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+      ]
+    }
+  ]
+}
