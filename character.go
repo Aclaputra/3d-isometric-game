@@ -40,8 +40,17 @@ func NewCharacterJSON(filepath string) (*CharacterJSON, error) {
 }
 
 type Character struct {
+	X, Y            float64
 	Name            string
+	Z               float64 // vertical height for gravity
+	VelocityZ       float64 // vertical speed
+	OnGround        bool    // is player on the ground
 	ImageDirections map[string]map[string][]*ebiten.Image
+	CurrentImage    *ebiten.Image
+	Facing          string
+	State           string
+	AnimFrame       int
+	AnimTimer       int
 }
 
 func (cj *CharacterJSON) GenerateCharacter(image *ebiten.Image) (character Character, err error) {

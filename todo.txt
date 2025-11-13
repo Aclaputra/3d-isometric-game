@@ -1,8 +1,8 @@
 1.User can see isometric world (done)
 2.User can see player character female (done)
-3.User can see 8 direction (on progress)
-4.User can move 8 direction with Arrow key & Steam deck pad
-4.5 Tiles have collision
+3.User can see 8 direction (done)
+4.User can move 8 direction with Arrow key & Steam deck pad (done)
+4.5 Tiles have collision (todo)
 4.6 User can have collisions to tiles with AABB 
 5.User can select 2 blocks away of horizontal & vertical from the player
 6.User can break tiles within player reach
