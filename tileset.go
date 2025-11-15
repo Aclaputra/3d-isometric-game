@@ -106,14 +106,20 @@ func (tj *TilesetJSON) GenerateTileset(image *ebiten.Image) (tiles map[string]*T
 }
 
 type Tile struct {
-	Name  string
-	Image *ebiten.Image
+	Name         string
+	IsWall       bool // wall collision like
+	CollisionBox *AABB
+	Image        *ebiten.Image
+}
+
+type AABB struct {
+	MinX, MinY float64
+	MaxX, MaxY float64
 }
 
 func (tj *TilesetJSON) mappingTilesetImage(tilesetImage *ebiten.Image, tilesetDetails *[]TilesetDetail) (tiles map[string]*Tile, err error) {
 	tileSize := tj.Size
 	tileXCount := tilesetImage.Bounds().Dx() / tileSize
-
 	tiles = make(map[string]*Tile, 0)
 	for _, desc := range *tilesetDetails {
 		tileIndex := desc.Y*tileXCount + desc.X

@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	_ "embed"
+	"fmt"
 	"image"
 	"image/color"
 	"log"
@@ -14,9 +15,9 @@ import (
 )
 
 const (
-	MapWidth  = 50
-	MapHeight = 50
-	MapLevels = 1
+	MapWidth  = 30
+	MapHeight = 30
+	MapLevels = 2
 )
 
 const (
@@ -35,9 +36,10 @@ type Game struct {
 	characterImg  *ebiten.Image
 	characterDesc *CharacterJSON
 	tiles         map[string]*Tile
-	mapData       [MapLevels][MapHeight][MapWidth]int // binary map
+	mapData       [MapLevels][MapHeight][MapWidth]Tile // binary map
 	player        Character
 	camera        Camera
+	debugMode     bool
 }
 
 func NewGame() *Game {
@@ -67,8 +69,9 @@ func NewGame() *Game {
 	if err != nil {
 		log.Fatal(err)
 	}
-	character.X = 25
-	character.Y = 5
+	character.X = 12
+	character.Y = 12
+	character.Z = 1
 	character.Facing = "down"
 	character.State = "idle"
 
@@ -79,7 +82,7 @@ func NewGame() *Game {
 	}
 
 	noise := NewNoise()
-	tilemap := NewTileMap(noise)
+	tilemap := NewTileMap(noise, tiles)
 
 	return &Game{
 		tilesetImg:    tilesetImg,
@@ -90,14 +93,18 @@ func NewGame() *Game {
 		mapData:       tilemap.mapData,
 		player:        character,
 		camera:        camera,
+		debugMode:     false,
 	}
 }
 
 func (g *Game) Update() error {
-	// Update player movement (if you have one)
+	fps := ebiten.CurrentFPS()
+	ebiten.SetWindowTitle(fmt.Sprintf("Habitate v0.01 | FPS: %.0f", fps))
+
+	// Update player movement
 	g.updatePlayer()
 
-	// Update camera to follow player smoothly
+	// Update camera smoothly
 	g.updateCamera()
 
 	return nil
@@ -126,13 +133,13 @@ func (g *Game) updatePlayer() {
 		dy += speed
 	}
 
-	// --- Normalize diagonals ---
+	// Normalize diagonals
 	if dx != 0 && dy != 0 {
 		dx *= 0.7071
 		dy *= 0.7071
 	}
 
-	// --- Determine direction ---
+	// Facing logic
 	switch {
 	case up && left:
 		g.player.Facing = "up"
@@ -152,31 +159,63 @@ func (g *Game) updatePlayer() {
 		g.player.Facing = "down_right"
 	}
 
-	// --- Determine state ---
+	// State logic
 	if dx == 0 && dy == 0 {
 		g.player.State = "idle"
-		g.player.AnimTimer = 0 // reset animation when idle
+		g.player.AnimTimer = 0
 	} else {
 		g.player.State = "walk"
 	}
 
-	// --- Update animation frame ---
+	// Animation
 	if g.player.State == "walk" {
 		g.player.AnimTimer++
-		if g.player.AnimTimer > 30 { // adjust speed (lower = faster)
+		if g.player.AnimTimer > 30 {
 			g.player.AnimTimer = 0
-			g.player.AnimFrame = (g.player.AnimFrame + 1) % 2 // toggle 0–1
+			g.player.AnimFrame = (g.player.AnimFrame + 1) % 2
 		}
 	} else {
 		g.player.AnimFrame = 0
 	}
 
-	// --- Select image ---
 	g.player.CurrentImage = g.player.ImageDirections[g.player.Facing][g.player.State][g.player.AnimFrame]
 
-	// --- Apply movement ---
-	g.player.X += dx
-	g.player.Y += dy
+	// -------------------------------------------------------
+	//  COLLISION CHECK
+	// -------------------------------------------------------
+
+	newX := g.player.X + dx
+	newY := g.player.Y + dy
+
+	// Player box at the new location
+	newBox := g.player.AABBAt(newX, newY)
+
+	blocked := false
+
+	playerZ := int(g.player.Z)
+
+	for y := 0; y < MapHeight; y++ {
+		for x := 0; x < MapWidth; x++ {
+
+			tile := g.mapData[playerZ][y][x]
+			if tile.CollisionBox == nil {
+				continue
+			}
+
+			if AABBIntersects(newBox, *tile.CollisionBox) {
+				blocked = true
+				break
+			}
+		}
+		if blocked {
+			break
+		}
+	}
+
+	if !blocked {
+		g.player.X = newX
+		g.player.Y = newY
+	}
 }
 
 func (g *Game) updateCamera() {
@@ -197,13 +236,19 @@ func (g *Game) updateCamera() {
 	}
 }
 
+func AABBIntersects(a, b AABB) bool {
+	return a.MinX < b.MaxX &&
+		a.MaxX > b.MinX &&
+		a.MinY < b.MaxY &&
+		a.MaxY > b.MinY
+}
+
 func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(color.RGBA{10, 10, 30, 255})
 
 	tileSize := g.tilesetDesc.Size
 	tileWidth := float64(tileSize)
 	tileHeight := float64(tileSize / 2)
-	dirtTile := g.tiles["Dirt Block"].Image
 
 	zoom := g.camera.Zoom
 
@@ -211,11 +256,39 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	screenCenterX := float64(screen.Bounds().Dx()) / 2
 	screenCenterY := float64(screen.Bounds().Dy()) / 2
 
-	// Draw world tiles
+	g.player.CurrentImage = g.player.ImageDirections[g.player.Facing][g.player.State][g.player.AnimFrame]
+
+	// Draw world tiles + cyan collision boxes
 	for z := 0; z < MapLevels; z++ {
 		for y := 0; y < MapHeight; y++ {
+
+			// --- draw the player at the correct depth ---
+			if z == int(g.player.Z) && y == int(g.player.Y) {
+
+				offsetUp := 48 * zoom
+				px := screenCenterX
+				py := screenCenterY
+
+				op := &ebiten.DrawImageOptions{}
+				op.GeoM.Scale(zoom, zoom)
+				op.GeoM.Translate(
+					px-float64(g.player.CurrentImage.Bounds().Dx())/2*zoom,
+					py-float64(g.player.CurrentImage.Bounds().Dy())*zoom+32*zoom-offsetUp,
+				)
+
+				screen.DrawImage(g.player.CurrentImage, op)
+
+				// ---- debug box code (unchanged) ----
+				if g.debugMode {
+					// (keep your debug code here)
+				}
+			}
+
 			for x := 0; x < MapWidth; x++ {
-				if g.mapData[z][y][x] == 0 {
+				tile := g.mapData[z][y][x]
+				tileImage := tile.Image
+				// for dev test debugging on one block collision
+				if tileImage == nil {
 					continue
 				}
 
@@ -227,21 +300,92 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				screenX := (tileX-g.player.X*tileWidth/2+g.player.Y*tileWidth/2)*zoom + screenCenterX
 				screenY := (tileY-g.player.X*tileHeight/2-g.player.Y*tileHeight/2)*zoom + screenCenterY - float64(z)*tileHeight*zoom
 
+				// Draw tile
 				options := &ebiten.DrawImageOptions{}
 				options.GeoM.Scale(zoom, zoom)
 				options.GeoM.Translate(screenX, screenY)
-				screen.DrawImage(dirtTile, options)
+
+				screen.DrawImage(tileImage, options)
+				// --- Draw isometric collision box (cyan diamond) ---
+				if g.debugMode && tile.CollisionBox != nil {
+					box := tile.CollisionBox
+
+					screenShiftX := tileWidth * -0.01 * zoom
+					screenShiftY := tileWidth * -0.55 * zoom
+
+					// Convert each AABB corner into isometric screen cwoords
+					convert := func(wx, wy float64) (sx, sy float64) {
+						isoX := (wx - wy) * (tileWidth / 2)
+						isoY := (wx + wy) * (tileHeight / 2)
+
+						sx = (isoX-g.player.X*tileWidth/2+g.player.Y*tileWidth/2)*zoom + screenCenterX
+						sy = (isoY-g.player.X*tileHeight/2-g.player.Y*tileHeight/2)*zoom + screenCenterY - float64(z)*tileHeight*zoom
+
+						sx += screenShiftX
+						sy += screenShiftY
+						return
+					}
+
+					sx0, sy0 := convert(box.MinX, box.MinY)
+					sx1, sy1 := convert(box.MaxX, box.MinY)
+					sx2, sy2 := convert(box.MaxX, box.MaxY)
+					sx3, sy3 := convert(box.MinX, box.MaxY)
+
+					// Draw top diamond (cyan)
+					drawQuadFilled(
+						screen,
+						sx0, sy0,
+						sx1, sy1,
+						sx2, sy2,
+						sx3, sy3,
+						color.RGBA{0, 255, 255, 200},
+					)
+
+					belowOffset := tileHeight * zoom // natural isometric vertical depth
+					drawQuadFilled(
+						screen,
+						sx0, sy0+belowOffset,
+						sx1, sy1+belowOffset,
+						sx2, sy2+belowOffset,
+						sx3, sy3+belowOffset,
+						color.RGBA{100, 100, 255, 200},
+					)
+				}
+
 			}
 		}
 	}
+}
 
-	// Draw player in center
-	g.player.CurrentImage = g.player.ImageDirections[g.player.Facing][g.player.State][g.player.AnimFrame]
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(zoom, zoom)
-	op.GeoM.Translate(screenCenterX-float64(g.player.CurrentImage.Bounds().Dx())/2*zoom,
-		screenCenterY-float64(g.player.CurrentImage.Bounds().Dy())*zoom+32*zoom)
-	screen.DrawImage(g.player.CurrentImage, op)
+func drawQuadFilled(screen *ebiten.Image,
+	x0, y0, x1, y1, x2, y2, x3, y3 float64,
+	col color.RGBA,
+) {
+	// A white base image (1×1)
+	img := ebiten.NewImage(1, 1)
+	img.Fill(color.White)
+
+	op := &ebiten.DrawTrianglesOptions{}
+
+	// Convert color to float32
+	r := float32(col.R) / 255
+	g := float32(col.G) / 255
+	b := float32(col.B) / 255
+	a := float32(col.A) / 255 // opacity!
+
+	vertices := []ebiten.Vertex{
+		{DstX: float32(x0), DstY: float32(y0), SrcX: 0, SrcY: 0, ColorR: r, ColorG: g, ColorB: b, ColorA: a},
+		{DstX: float32(x1), DstY: float32(y1), SrcX: 1, SrcY: 0, ColorR: r, ColorG: g, ColorB: b, ColorA: a},
+		{DstX: float32(x2), DstY: float32(y2), SrcX: 1, SrcY: 1, ColorR: r, ColorG: g, ColorB: b, ColorA: a},
+		{DstX: float32(x3), DstY: float32(y3), SrcX: 0, SrcY: 1, ColorR: r, ColorG: g, ColorB: b, ColorA: a},
+	}
+
+	indices := []uint16{
+		0, 1, 2, // first triangle
+		0, 2, 3, // second triangle
+	}
+
+	screen.DrawTriangles(vertices, indices, img, op)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {

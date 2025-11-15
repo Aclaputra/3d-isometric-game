@@ -41,8 +41,8 @@ func NewCharacterJSON(filepath string) (*CharacterJSON, error) {
 
 type Character struct {
 	X, Y            float64
-	Name            string
 	Z               float64 // vertical height for gravity
+	Name            string
 	VelocityZ       float64 // vertical speed
 	OnGround        bool    // is player on the ground
 	ImageDirections map[string]map[string][]*ebiten.Image
@@ -51,6 +51,27 @@ type Character struct {
 	State           string
 	AnimFrame       int
 	AnimTimer       int
+	FootCollisonBox CharacterCollision
+}
+
+type CharacterCollision struct {
+	// Player collision box relative to player center
+	BoundsMinX float64
+	BoundsMinY float64
+	BoundsMaxX float64
+	BoundsMaxY float64
+}
+
+func (p *Character) AABBAt(x, y float64) AABB {
+	feetW := 0.30 // same width used in update
+	feetH := 0.30 // same height used in update
+
+	return AABB{
+		MinX: x - feetW,
+		MaxX: x + feetW,
+		MinY: y - feetH,
+		MaxY: y + feetH,
+	}
 }
 
 func (cj *CharacterJSON) GenerateCharacter(image *ebiten.Image) (character Character, err error) {
