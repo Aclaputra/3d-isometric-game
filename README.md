@@ -4,3 +4,12 @@
 
 ## See My Game Dev Update in Java, Go & C++ on my Twitter [Twilight Cat](https://x.com/twilight_catt)
 ![](./sc_game_ex.png)
+
+## Tools used
+- Ebitengine
+- Aseprite
+- Tiled
+- Drawing Pen Tablet 
+- Some Courage & Creativity
+
+I did not follow tutorials. It's all my multiple failures and successes of testing. (You can't find this exact tutorial on Internet, thanks peace out) - Twilight Cat
