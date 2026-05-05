@@ -3,3 +3,4 @@
 - Full Version is Written in Java LWJGL without Game Engine (Creating My Own)
 
 ## See My Game Dev Update in Java, Go & C++ on my Twitter [Twilight Cat](https://x.com/twilight_catt)
+![](./sc_game_ex.png)
