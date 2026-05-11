@@ -7,6 +7,7 @@
 
 ## Tools used
 - Ebitengine
+- Steamworks SDK
 - Aseprite
 - Tiled
 - Drawing Pen Tablet 
