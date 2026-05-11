@@ -12,4 +12,14 @@
 - Drawing Pen Tablet 
 - Some Courage & Creativity
 
+## Setup
+1. put the steam_api64.dll to the root project
+
+2. put your app id
+```bash 
+cp steam_appid_example.txt steam_appid.txt
+```
+3. `go build`
+4. `./{filename}.ext` or double click on explorer
+
 I did not follow tutorials. It's all my multiple failures and successes of testing. (You can't find this exact tutorial on Internet, thanks peace out) - Twilight Cat
